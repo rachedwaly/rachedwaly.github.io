@@ -1,0 +1,327 @@
+<!DOCTYPE HTML>
+
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<head>
+<title>Heli Boy</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport"/>
+<link href="assets/css/main.css" rel="stylesheet"/>
+<noscript><link href="assets/css/noscript.css" rel="stylesheet"/></noscript>
+</head>
+<body class="is-preload">
+<!-- Wrapper -->
+<div id="wrapper">
+<!-- Header -->
+<header id="header">
+<a class="logo" href="index.html">My portofolio</a>
+</header>
+<!-- Nav -->
+<nav id="nav">
+<ul class="links">
+<li><a href="index.html">My portfolio</a></li>
+<li class="active"><a href="mesh_coloring.html">Heli Boy</a></li>
+</ul>
+<ul class="icons">
+<li><a class="icon brands alt fa-linkedin" href="https://www.linkedin.com/in/mohamed-rached-waly"><span class="label">LinkedIn</span></a></li>
+<li><a class="icon brands alt fa-github" href="https://github.com/rachedwaly"><span class="label">GitHub</span></a></li>
+</ul>
+</nav>
+<!-- Main -->
+<div id="main">
+<!-- Post -->
+<section class="post">
+<header class="major">
+<h1 id="title">Heli Boy
+									</h1>
+<p>This Section is dedicated to document my work on the locomotion technique</p>
+</header>
+<h3>Context:</h3>
+<p>
+									This project was done while taking the Human-Computer Ineraction for Mixed Reality course at 
+									"Télécom Paris. The goal was to come up with a locomotion technique for a VR experience, 
+									to implement it using unity and to deploy it on the oculus quest.
+									<br/>
+<p>
+										You can find here my final powerpoint <a href="data/IGD301.pptx" style="color:DodgerBlue;"> presentation</a> of the project.
+									</p>
+</p>
+<h3>1) 3d model of the fans’ system:</h3>
+<p>
+								The initial idea was to have only one fan on top of the player. On second thoughts, I noticed that steering with this kind of system is not credible so I added two more fans on the side.
+								
+								The right fan will start spinning if the player wants to go left and the same principle is applied to the left one. I called these two fans  “the steering Fans”. The fan situated directly above the helmet is called the elevation fan, this fan will constantly work and tilt forward or backward depending on the direction that the player chooses with his right controller.
+								
+								I found the 3d model of the helmet in this website called  <a href="https://www.turbosquid.com/" style="color:DodgerBlue;">turbosquid </a>.
+									
+								</p>
+<div class="row">
+<div class="column2">
+<figure>
+<img src="images/VR_AR/fans1.png" width="450"/>
+</figure>
+</div>
+<div class="column2">
+<figure>
+<img height="335" src="images/VR_AR/fans2.png" width="450"/>
+</figure>
+</div>
+</div>
+<center> <b>3d model of the fans' system</b></center>
+<h3>2) Adding a character to the locomotion technique:</h3>
+<p>
+										I used unity’s asset store to download a 3d model of a human body. It is called <a href="https://assetstore.unity.com/packages/3d/characters/humanoids/humans/adventure-character-201384" style="color:DodgerBlue;">
+
+											“Adventure Character”</a>
+
+
+										Besides, I applied inverse kinematics on its arms in order to make them follow 
+										the position of the oculus’ controllers. For this I used also an asset provided by unity called 
+										<a href="https://assetstore.unity.com/packages/tools/animation/fast-ik-139972" style="color:DodgerBlue;">
+
+											“Fast IK”</a>
+										
+
+										I created virtual targets of the hands and mapped their transform relatively to the eyes of the body. 
+										This mapping is done by calculating the relative position of the controllers with respect to the OVRCameraRig.<br/>
+</p>
+<h3> 3) Adjusting the orientation of the neck to follow the HMD orientation</h3>
+<p>Different modelling softwares does not use the same order of the axis as UNITY. 
+								For example, the game object neck inside the body that I imported from the asset store 
+								has his axis inverted so I followed a guide from <a href="https://docs.unity3d.com/2017.2/Documentation/Manual/HOWTO-FixZAxisIsUp.html" style="color:DodgerBlue;">
+									the official unity’s docs</a>. 
+								
+								
+							   
+							   As a summary, I had to create an empty game object outside of the imported body. Then place it exactly where the neck is. The third step is to make this game object as a parent of the neck inside the body and attach to it a script that will map the orientation of the HMD.
+							</p>
+<h3>4) Movement Placement:</h3>
+<h4> a) Handling the input:</h4>
+<p>Map the desired rotation of the controllers to two virtual controllers of the system called yokes:
+
+								●  The right yoke will display only the orientation of the controller along the local x axis.
+								●  The left yoke will display only the orientation of the controller along the local y axis.
+						
+
+						
+						Below is the script attached to the yokes:
+
+						<pre><code>
+
+void Update()
+{						
+transform.rotation = Quaternion.Euler(0, leftController.transform.rotation.eulerAngles.y, 0);						
+}
+
+						</code></pre>
+</p>
+<p> this video shows how the virtual yokes are following a unique axis of rotation
+							of each of the controllers:
+						</p>
+<center><video controls="" height="400" width="550">
+<source src="videos/AR_VR/yokes.mp4" type="video/mp4"/>
+</video>
+</center>
+<h4>b) Movement:</h4>
+<p>
+									In order to understand how the movement is applied to the player 
+									here is the hierarchy of the gameobjects that I used:</p>
+<center><img src="images/VR_AR/hiéarchieUnity.png"/> </center>
+<p>
+								After reading the values taken from these two virtual controllers, 
+								I map them to the movement of the body. I attached a script called handler.cs 
+								that takes in the transform of the two virtual controllers. Then with simple LERP and SLERP I move the 
+								transform of the parent which is the OVRPlayerController.
+								</p>
+<p>
+<b>Adjusting speed:</b>
+</p>
+<p>
+									The player can controller how fast he can go by long pressing on the acceleration button. For this I used an increment variable for forward and backward moving.
+								</p>
+<p>
+								Below you can find the code of handler.cs:
+								</p>
+<pre>	 
+<code>
+public class Handler : MonoBehaviour
+{
+	// Start is called before the first frame update
+
+	public Transform leftController;
+	public Transform rightController;
+
+	private float speedCoefficientb;
+	private float speedCoefficientf;
+
+	public float maxSpeed;
+
+	public float increment;
+
+	public Transform cameraVR;
+
+	public AudioSource backgroundMusic;
+
+	public ParkourCounter parkourCounter;
+	public string stage;
+
+	public bool fpsMode;
+
+	public float u, f;
+
+	void Start()
+	{
+		u = 0.5f;
+		f = 2.0f;
+		fpsMode = true;
+		speedCoefficientb = 1;
+		speedCoefficientf = 1;
+	}
+
+	// Update is called once per frame
+	void Update()
+
+	{
+
+		if (OVRInput.Get(OVRInput.Button.One))
+		{
+			backgroundMusic.volume = 1.0f;
+			transform.parent.position = Vector3.Lerp(transform.parent.position, transform.parent.position+rightController.forward*speedCoefficientf, Time.deltaTime);
+			speedCoefficientf =Mathf.Min(maxSpeed,speedCoefficientf+ increment);
+			
+
+			Debug.Log(speedCoefficientf);
+			
+		}
+		else
+		{
+			backgroundMusic.volume = 0.5f;
+			speedCoefficientf = 1.0f;
+		}
+
+		if (OVRInput.Get(OVRInput.Button.Two))
+		{
+			backgroundMusic.volume = 1.0f;
+			transform.parent.position = Vector3.Lerp(transform.parent.position, transform.parent.position - rightController.forward*speedCoefficientb, Time.deltaTime);
+			speedCoefficientb = Mathf.Min(maxSpeed, speedCoefficientb + increment);
+		}
+		else 
+		{
+			backgroundMusic.volume = 0.5f;
+			speedCoefficientb = 1.0f;
+		}
+
+		transform.parent.rotation = Quaternion.Slerp(transform.parent.rotation, leftController.rotation, Time.deltaTime);
+
+		if (OVRInput.Get(OVRInput.Button.Four)){
+			if (fpsMode)
+			{
+				fpsMode = false;
+				cameraVR.position = cameraVR.position - f*cameraVR.forward + u*cameraVR.up;
+			}
+			else
+			{
+				fpsMode = true;
+				cameraVR.position = cameraVR.position + f*cameraVR.forward - u*cameraVR.up;
+			}
+
+		}
+
+	}
+
+</code>
+</pre>
+<h3>6) Third person mode:</h3>
+<p>
+I added a feature to this project that enables the player to switch between first and third person mode.
+
+It is done using a translation of the OVRCameraRig behind the player and it is toggled by pressing the 'Y' button of the left controller.
+								</p>
+<h3>7) Final Demo</h3>
+<center><iframe height="330" src="https://www.youtube.com/embed/90pAq7S_hDA" width="600">
+</iframe> </center>
+<h3>8) Evaluation:</h3>
+<p>This locomotion is implemented in a way that favors speed on both accuracy and simulator sickness.
+								In order to verify its performance regarding these metris, we conducted a small survey withing our class.
+								Each student has been asked to try out two other locomotion techniques and give them a score on ten for each of the following metrics:
+								"Average Round time",
+								"Average accuracy",
+								"Average simulator sickness"
+								"Average Amount of fun",
+								"Average amount of finished rounds"
+								"Average presence".</p>
+<p>
+								The experience consisted in going throught the parkour scene that Wen-Jie Tseng provided and pick coins on the way.
+
+								</p>
+<p>
+									In my case, I was only interested to the first three.
+									Let's start with the <b>accuracy</b> :<br/>
+									For the speed evaluation, The results shown in the figure below
+									show that comparing to other locomotion techniques mine has succeded in boosting
+									the speed metric.
+									<figure>
+<center><img src="images/VR_AR/speed.png" width="450"/></center>
+<center><figcaption> <b>Results of the speed test</b></figcaption></center>
+</figure><br/>
+<b>Accuracy: </b><br/>
+									For the accuracy part, I don’t think that this diagram reflects truly the accuracy 
+									of our locomotion techniques because there are not very 
+									big variations in the diagram even with different types of locomotions. <br/>
+									In spite of this idea, I found that my locomotion technique have a decent accuracy score.<br/>
+<figure>
+<center><img src="images/VR_AR/accuracy.png" width="450"/></center>
+<center><figcaption> <b>Results of the Accuracy test</b></figcaption></center>
+</figure><br/>
+<b>Simulator sickness: </b><br/>
+
+									
+										Unfortunately, my locomotion technique induced motion sickness in most of the players. 
+										Actually, some of my close friends couldn’t finish the track. The only one that felt less motion sickness is a classmate 
+										who implemented a technique in the same category (flying).
+
+										<figure>
+<center><img src="images/VR_AR/simulator_sickness.png" width="450"/></center>
+<center><figcaption> <b>Results of Simulator sickness</b></figcaption></center>
+</figure><br/>
+</p>
+</section>
+</div>
+<!-- Footer -->
+<footer id="footer">
+<section class="split contact">
+<section>
+<h3>Phone</h3>
+</section>
+<section>
+<h3>Email</h3>
+<p>rachedwaly1998@gmail.com</p>
+</section>
+<section>
+<h3>Social</h3>
+<ul class="icons alt">
+<li><a class="icon brands alt fa-linkedin" href="https://www.linkedin.com/in/mohamed-rached-waly"><span class="label">LinkedIn</span></a></li>
+<li><a class="icon brands alt fa-github" href="https://github.com/rachedwaly"><span class="label">GitHub</span></a></li>
+</ul>
+</section>
+</section>
+</footer>
+<!-- Copyright -->
+<div id="copyright">
+<ul><li>© Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+</div>
+</div>
+<!-- Scripts -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

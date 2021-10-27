@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<head>
+<title>Movies database</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport"/>
+<link href="assets/css/main.css" rel="stylesheet"/>
+<noscript><link href="assets/css/noscript.css" rel="stylesheet"/></noscript>
+</head>
+<body class="is-preload">
+<!-- Wrapper -->
+<div id="wrapper">
+<!-- Header -->
+<header id="header">
+<a class="logo" href="index.html">My portfolio</a>
+</header>
+<!-- Nav -->
+<nav id="nav">
+<ul class="links">
+<li><a href="index.html">My portfolio</a></li>
+<li class="active"><a href="movies_data_base.html">Movies data base visualization</a></li>
+</ul>
+<ul class="icons">
+<li><a class="icon brands alt fa-linkedin" href="https://www.linkedin.com/in/mohamed-rached-waly"><span class="label">LinkedIn</span></a></li>
+<li><a class="icon brands alt fa-github" href="https://github.com/rachedwaly"><span class="label">GitHub</span></a></li>
+</ul>
+</nav>
+<!-- Main -->
+<div id="main">
+<!-- Post -->
+<section class="post">
+<header class="major">
+<h1>Movies database visualization
+									</h1>
+<p> <b>This was a group work</b>
+<u>Members:</u>  
+									Beroule, Pascal
+									Bertrand, Lauriane
+									Mankai, Yassine
+									Waly, Mohamed Rached
+									Wei, Xiang
+</p>
+</header>
+<h2>What I learnt from this project:</h2>
+<p>→Effective teamwork flow. 
+									→Getting through the process of designing a visualization for data bases. 
+									→Working with <u><a href="https://d3js.org/">d3 library</a></u>.
+									→Enhanced my coding skills in java script.
+								 </p>
+<p>In this project, my contribution was mainly in the implementation of the magnets. My work consisted in finding an abstract method that works in any situation of this sort.
+										This resulted in making an optimal data structure and a dynamic generation of magnets.
+									</p>
+<p>	The idea is to create clusters of points (one point represents a movie), depending on the magnets they’re attracted to. As we wanted to make it as understandable as 
+										possible even for non-scientific users - because the target user is a lambda person interested in movies - we added colors to simplify the understanding of the output. 
+										The points go from blue to red depending on how much magnets they are attracted to. To use the entire red-blue scale and keep the clusters separable in color, 
+										we decided to normalize this color mapping using the maximum magnet per node number. That way, the movies that are attracted by the most magnets appear red, 
+										the ones that are not attracted by any magnet appear blue and the ones that have an intermediary number of attracting magnets appear accordingly. </p>
+<center><h2>Personal contribution:</h2></center>
+<p> <u>The data structure:</u> I created a map≺elementId,magnets≻ . In fact, this variable is the only link between any database and the magnets' generation
+								I wanted to make the pipeline of the generation of magnets as independant from the data base as possible.</p>
+<p> <u>The generation of magnets: </u> Based on the map I previously explained, I can pinpoint for each element of our data base the magnets that will affect it
+								so I iterate on the keys (the ids of our element), and calculate the force of each one of them. </p>
+<center><b> <a href="https://github.com/rachedwaly/Movies-DB-InfoVis"> GitHub Repo</a></b></center>
+<center><b> <a href="reports/movies/IGR204 Milestone 5 - Final report.pdf"> Final report</a></b></center>
+<br/>
+<center><b><u>Video and image showcasing the magnet view:</u></b></center>
+<div class="image main"><img alt="" src="images/magnets_explained.PNG"/></div>
+<video class="video" controls="" height="1000" width="1000">
+<source src="videos/magnets.mp4" type="video/mp4"/>
+</video>
+</section>
+</div>
+<!-- Footer -->
+<footer id="footer">
+<section class="split contact">
+<section>
+<h3>Phone</h3>
+</section>
+<section>
+<h3>Email</h3>
+<p>rachedwaly1998@gmail.com</p>
+</section>
+<section>
+<h3>Social</h3>
+<ul class="icons alt">
+<li><a class="icon brands alt fa-linkedin" href="https://www.linkedin.com/in/mohamed-rached-waly"><span class="label">LinkedIn</span></a></li>
+<li><a class="icon brands alt fa-github" href="https://github.com/rachedwaly"><span class="label">GitHub</span></a></li>
+</ul>
+</section>
+</section>
+</footer>
+<!-- Copyright -->
+<div id="copyright">
+<ul><li>© Mohamed Rached Waly</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+</div>
+</div>
+<!-- Scripts -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

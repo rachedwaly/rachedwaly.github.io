@@ -1,0 +1,342 @@
+<!DOCTYPE HTML>
+
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<head>
+<title>SSDO</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport"/>
+<link href="assets/css/main.css" rel="stylesheet"/>
+<noscript><link href="assets/css/noscript.css" rel="stylesheet"/></noscript>
+</head>
+<body class="is-preload">
+<!-- Wrapper -->
+<div id="wrapper">
+<!-- Header -->
+<header id="header">
+<a class="logo" href="index.html">My portofolio</a>
+</header>
+<!-- Nav -->
+<nav id="nav">
+<ul class="links">
+<li><a href="index.html">My portfolio</a></li>
+<li class="active"><a href="SSDO.html">SSDO</a></li>
+</ul>
+<ul class="icons">
+<li><a class="icon brands alt fa-linkedin" href="https://www.linkedin.com/in/mohamed-rached-waly"><span class="label">LinkedIn</span></a></li>
+<li><a class="icon brands alt fa-github" href="https://github.com/rachedwaly"><span class="label">GitHub</span></a></li>
+</ul>
+</nav>
+<!-- Main -->
+<div id="main">
+<!-- Post -->
+<section class="post">
+<header class="major">
+<h1 id="title">Screen space directional occulusion
+									</h1>
+<p>This Section is dedicated to document my partial implementation of a research paper called <a href="https://people.mpi-inf.mpg.de/~ritschel/Papers/SSDO.pdf" style="color:DodgerBlue;"> "Approximating Dynamic Global illumination in Image Space"</a> </p>
+</header>
+<h3>Context:</h3>
+<p>
+									This project was done while taking the Image Synthesis course at "Ecole polytechnique". In this course I had the opportunity to go through the main 
+                                    principles, algorithms and techniques for image synthesis. In particular, I had to deal with digital models of shape, appearance, lighting and sensors presents in a 3D scene.
+                                    I got familiar with the rendering equation as well as the standard illumination, shading and reflectance models. Within this course, I also encountered various rendering algorithms like projective rendering and ray tracing.
+								</p>
+<h3>I) Paper Summary:</h3>
+<p>
+
+									The paper I studied is entitled “Approximating Dynamic Global illumination in Image Space” written by Ritschel, Tobias, Thorsten Grosch, 
+                                    and Hans-Peter Seidel. The paper suggests that by using the same technique of the SSAO [Shanmugam and Arikan 2007]
+                                    they could compute many more types of effects. Specifically, in this paper they developed an overhead on the previous SSAO standard technique.
+                                    They proposed a technique that approximates direct and one-bounce light transport in screen space. 
+                                
+                                    The paper suggests a technique called screen-space directional occlusion (SSDO)
+                                    That accounts for: the direction of the incoming light-one bounce of indirect illumination- reducing the computation time.
+
+
+								</p>
+<h4>a) Near-field Light Transport in Image Space:</h4>
+<p>
+                                    Their work makes better use of the information that is already computed during the SSAO 
+                                    process and extracts 
+                                    two more significant effects: direction occlusion and indirect bounces.
+                                </p>
+<b>Direction lighting using directional occlusion:</b>
+<p>
+                                For this part, the authors proposed to remove the decoupling of occlusion and illumination present in the standard SSAO in the following way:
+                                For every pixel at 3D position P with normal n, the direct radiance Ldir is computed from N sampling directions Wi uniformly.
+                                distributed over the hemisphere, each covering a solid angle of <img src="images/SSDO/deltaomega.JPG" width="120"/>
+<center><img src="images/SSDO/Ldir.JPG" width="500"/> </center>
+                                
+                                Each sample computes the product of incoming radiance Lin and visibility V and the diffuse term BRDF. Lights can be given by an 
+                                environment map light source.
+                            </p>
+<b>Indirect Bounces:  </b>
+<p>
+                                For the indirect bounce of light, they use the information stored after the previous light pass to combine it with the occluders (V=0). 
+
+                                <center><img src="images/SSDO/Lind.JPG" width="850"/> </center>
+                                With  <img src="images/SSDO/twoAngles.JPG" width="50"/>being the angles between the sender/receiver normal and the transmittance direction.         
+                                is the area of each region (N regions in total). Depending on the slope distribution inside the hemisphere, the actual value can be higher, 
+                                so they use this parameter to control the strength of the color bleeding manually. 
+                                Also, they don’t consider back-facing patches relative to P (max operator in the formula).
+                            </p>
+<b>Visibility Calculation:</b>
+<p>
+                                To calculate the visibility V, the paper uses the same technique of the SSAO. They calculate random offsets around the point P in view space. 
+                                Then by applying depth tests in screen space, they can determine which one of the offsets will be considered as occluder (V=0).
+                            </p>
+<h4>b)Single-depth Limitations:</h4>
+<p>
+                                The visibility test explained in the previous part is an approximation since depth tests are applied in screen space. Meaning, it doesn't  
+                                take in consideration the geometry of the mesh. With this constraint they got two issues that need to be handled.
+                                I am going to detail both in the coming parts. 
+                                First issue; In certain view angles the source of a given 
+                                color bleeding is occluded. So the information about its color in the screen space is lost. 
+                                Thus the coloring bleeding disappears in that region. 
+                                You can see this effect in the version that I implemented (see picture below) where the color 
+                                of the ground doesn't bleed on the red wall.
+
+                                <center><img src="images/SSDO/singleDepthLimitation.JPG"/></center>
+</p>
+<b>Multiple Cameras:</b>
+<p>
+                                A solution, provided in the paper, consisted in using multiple cameras. 
+                                The multiple first light passes of each camera will give us information to reconstruct 
+                                the color bleeding effect lost with a single camera. The authors propose that the best possible 
+                                viewpoint for an additional camera would be completely different from the viewer, like rotated about 90 degrees 
+                                around the object center to view the grazing-angle polygons from the front.
+
+                             
+                                The Second issue, that the SSDO may encounter at this stage, is that:
+                                 if there is another geometry that can interfere in the occlusion test performed before 
+                                 (like in the case of point A (relative to P)) in the figure provided in the paper.
+
+                                 <center><img src="images/SSDO/multipleCameras.JPG"/></center>
+</p>
+<b> Depth peeling:</b>
+<p>
+                                To overcome this limitation, the authors resorted to the depth peeling technique [Everitt 2001]. 
+                                Extending the depth tests not only to the first layer but to ‘n’ layers, improves the blocker test (visibility test) 
+                                since it provides more information about the geometry of the scene. Like in the case of a two-manifold geometry; 
+                                The first and the second layer correspond to the front and back face of the volume, so an offset found between these two layers is inside the mesh.  
+                            </p>
+<h4>c)Integration in Global Illumination:</h4>
+<p>
+                                SSDO can be used for natural illumination. The basic idea is to first compute the global illumination on a coarse representation of the geometry. 
+                                Then, to add the lighting to the screen space at runtime. 
+                                One of the results they showed is an example of Instant Radiosity with shadow correction and an additional indirect bounce in screen space. 
+                                <figure>
+<center> <img height="285" src="images/SSDO/figure12.JPG"/></center>
+<center><figcaption> <b>Figure 12 of the paper</b></figcaption></center>
+</figure>
+</p>
+<h3>II) My implementation:</h3>
+<p>
+                                        Before going through the details of the implementation, I want to point out that my work consists in implementing the standard SSDO. 
+                                        Meaning, the goal of my implementation is to have only a color bleeding effect without further enhancements mentioned in the paper.
+                                    
+                                    In order to fully grasp the mechanism of the SSDO technique I had to go through the SSAO in the first place. 
+                                    Because a large part of the idea behind the SSDO came from it. 
+                                    And for that, I had to get familiar with the deferred shading techniques. Thus, I decomposed my work into 3 milestones:
+									</p>
+<b>First milestone</b> was to render the same result of the lab by deferred rendering. 
+<b>Second milestone</b> was to implement the SSAO technique to understand the blocker test mentioned in the paper. 
+<b>Third and last milestone</b>, using what I learnt from the previous steps I will implement SSDO.
+<p>I provided in the demo provided in the github link 3 buttons (F1,F2,F3) to switch between the results of my 3 milestones.</p>
+<h4>1)Deferred Shading:</h4>
+<p>In order to apply lighting to the scene, a forward rendering technique is usually opted. 
+                                        But sometimes with the presence of a big number of point lights this technique may hinder the performance. 
+                                        This is mainly due to the large number of objects iterated on, for each active light. 
+                                        Deferred Shading technique in this case can come in handy. 
+                                        By decoupling the geometry from light’s calculation, much more performance is gained. 
+                                        That’s because the calculations are constrained to the screen space. 
+
+                                        Deferred Shading consists of two passes: the first one is the <b>geometry pass</b>.
+                                        This pass renders the scene one time and can store all kinds of geometrical 
+                                        information in the process (like normals,positions..). 
+                                        With this way, I drastically reduce the number of calculations done in the second pass which is the <b>lighting pass</b>. 
+                                        In fact, this pass constructs the lighting by retrieving the necessary information stored in the geometry buffer.  
+
+                                        I also want to add that the deferred shading technique can be combined with forward rendering. It requires only copying the depth buffer 
+                                        of the geometry pass to the  forward rendering one. I didn’t implement this combination being not very crucial for my ultimate goal.
+
+                                    </p>
+<b>Implementation Details:</b>
+<p>
+                                        I implemented a class called “DefferedRenderer” where I will handle all rendering processes in my project. 
+                                        In this class, I start by initializing the textures and the buffers that I am going to use. 
+                                        First, I load the albedo and roughness texture used in the scene. 
+                                        Secondly, I generate the frame buffers and the textures associated. 
+                                        In order to render the scene like in the forward rendering one, 
+                                        I needed to retrieve the position of fragments in view space + normals in global space +colors.
+                                        Then I applied the standard light calculations. 
+                                        As a summary, I used one more frame buffer to reach my goal. 
+                                        In other parts, I will show how I use multiple frame buffers for more complex calculations.
+<b>The ‘F1’ button will enable the standard deferred renderer with 32 random directional light sources.</b>
+</p>
+<h4>2) SSAO:</h4>
+<p>
+                                    In order to perform screen space ambient occlusion, 
+                                    I had to approximate for each fragment in the screen the number of occluders nearby.    
+                                </p>
+<h5>a)Blocker test:</h5>
+<p>
+                                    I considered a hemisphere tangent to the fragment in the view space and N number of samples randomly generated inside of it. 
+                                    In my implementation, I also aligned the samples to be to the center of the hemisphere. 
+                                    Besides, I needed to choose randomly an orientation for the hemisphere, for that I generated a 4*4 noise texture in order 
+                                    to generate the tangent vector later in the fragment shader (the noise texture is scaled in the fragment shader to fit the sceen’s width &amp; height).   
+                                </p>
+<h5>b)Calculate ambient occlusion:</h5>
+<p>
+                                    In the fragment shader, I iterate on all the samples for each fragment and 
+                                    accumulate the number of occluders by performing a 
+                                    depth test in screen space between the sample and the fragment (in the same place of the screen) 
+                                    retrieved from the geometry pass. I also constrain the effect of ambient occlusion to the hemisphere 
+                                    already described by simply performing a range check (to avoid applying SSAO on a far geometry).
+                                    The resulting texture contains a lot of noise, 
+                                    so I added a blurring pass by convolving a gaussian kernel (4x4) on the resulting SSAO texture.
+                                </p>
+<h5>c)Lighting pass:</h5>
+<p>
+                                    After calculating the number of occluders per fragment, 
+                                    I perform the lighting pass described in section II.1 but with one minor change. 
+                                    I multiplied the diffuse light by the ambient occlusion stored in the blurring pass. 
+                                </p>
+<b>Implementation Details:</b>
+<p>
+                                    For each pass I perform, I need a frame buffer and the texture associated. 
+                                    This texture will be the link between each layer of the rendering process. I will detail the parameters I picked for 
+                                    The texture of the framebuffers.
+                                    The geometry texture parameters:
+                                </p>
+<div class="row" style="padding-left: 0%;">
+<div class="column2">
+<figure>
+<img height="100" src="images/SSDO/LEFT_texture.JPG" width="450"/>
+<figcaption><b>Position in view space </b></figcaption>
+</figure>
+</div>
+<div class="column2">
+<figure>
+<img height="100" src="images/SSDO/right_texture.JPG" width="450"/>
+<figcaption> <b>normals in view space/global normals/albedo &amp; roughness
+                                            </b></figcaption>
+</figure>
+</div>
+</div>
+<p>
+                                    Gl_ClAMP_TO_EDGE was added to the position buffers to avoid over sampling when retrieving the texture later.
+                                    Fragment/VertexShaders associated with this part:  SSAO_g_buffer,SSAO_FS,SSAO_BLURFS,LightingSSAOFS.
+                                    Each other texture I created had the same parameters as the normals.
+<b>You can check the result of my SSAO by clicking on F2.</b>
+</p>
+<h4>3) SSDO:</h4>
+<p>
+                                    In order to perform SSDO, I used the same technique described in the previous sections. 
+                                    But now for each occluder, 
+                                    I transmitted its color to the center of the hemisphere.
+                                    The transmission of color or as the authors call it in the paper “color bleeding” 
+                                    is weighted by a user-controllable coefficient, the cosine of the angles (between the normals of receiver/sender and the transmittance) 
+                                    and its distance to the center.
+                                     
+                                </p>
+<b>Implementation Details:</b>
+<p>
+                                    In this part, I will also use the same deferred shading techniques I described in previous sections. 
+                                    That’s why I will go through only the different framebuffers and passes I performed to reach the result.
+                                </p>
+<p>
+<b>First pass:</b> The same geometry pass I performed for the SSAO. 
+<b>Second pass:</b> Lighting pass to retrieve the correct colors used later in the color bleeding.
+<b>Third pass:</b> In this pass, I calculate only the indirect bounces of light on each fragment of the screen by using 
+                                the same technique of the SSAO. In this part, I changed a bit the formula proposed in the paper because the resulting 
+                                color bleeding was very intense (in my case). I used this formula instead: <img src="images/SSDO/Lindplus.png" width="400"/>
+                                Then, I averaged all the indirect bounces of light and multiplied it by a floating number ‘control’ that can be adjusted by the user.
+                                 
+<b>Forth pass:</b> After storing the result of the third pass in a texture, 
+                                 I had to perform a blurr pass to the results like I did in the SSAO but this time I used a bigger gaussian kernel 8x8. 
+</p>
+<h3>III) Results &amp; Limitations:</h3>
+<p>
+                                    Down below you will see real time snippets of the scene I created. There are also different results of different parts of the implementation.   
+                                 </p>
+<p>
+<b>
+                                        Limitations: 
+                                     </b>
+                                     -The code that I implemented doesn’t support window resize.
+                                     -Color bleeding might disappear in grazing view angles of the scene (like shown in “I / b)” )
+                                     -With some distribution geometry, we can notice the importance of the depth peeling technique.
+</p>
+<center>
+<div class="row" style="padding-left: 0%;">
+<div class="column2">
+<figure>
+<img src="images/SSDO/SSDO_OFF.png" width="350"/>
+<figcaption><b>original Scene</b></figcaption>
+</figure>
+</div>
+<div class="column2">
+<figure>
+<img src="images/SSDO/SSAO_TEXTURE.png" width="350"/>
+<figcaption> <b>Ambient occlusion texture</b></figcaption>
+</figure>
+</div>
+</div>
+<div class="row" style="padding-left: 0%;">
+<div class="column2">
+<figure>
+<img src="images/SSDO/SSAO_ON.png" width="350"/>
+<figcaption> <b>SSAO ON</b></figcaption>
+</figure>
+</div>
+<div class="column2">
+<figure>
+<img src="images/SSDO/SSDO_ON.png" width="350"/>
+<figcaption><b>SSDO ON</b></figcaption>
+</figure>
+</div>
+</div></center>
+<hr/>
+<center><b> <a href="https://github.com/rachedwaly/SSDO_project"> GitHub Repo</a></b></center>
+<hr/>
+</section></div>
+</div>
+<!-- Footer -->
+<footer id="footer">
+<section class="split contact">
+<section>
+<h3>Phone</h3>
+</section>
+<section>
+<h3>Email</h3>
+<p>rachedwaly1998@gmail.com</p>
+</section>
+<section>
+<h3>Social</h3>
+<ul class="icons alt">
+<li><a class="icon brands alt fa-linkedin" href="https://www.linkedin.com/in/mohamed-rached-waly"><span class="label">LinkedIn</span></a></li>
+<li><a class="icon brands alt fa-github" href="https://github.com/rachedwaly"><span class="label">GitHub</span></a></li>
+</ul>
+</section>
+</section>
+</footer>
+<!-- Copyright -->
+<div id="copyright">
+<ul><li>© Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+</div>
+<!-- Scripts -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE HTML>
+
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<head>
+<title>Bowling Game VR</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport"/>
+<link href="assets/css/main.css" rel="stylesheet"/>
+<noscript><link href="assets/css/noscript.css" rel="stylesheet"/></noscript>
+</head>
+<body class="is-preload">
+<!-- Wrapper -->
+<div id="wrapper">
+<!-- Header -->
+<header id="header">
+<a class="logo" href="index.html">My portofolio</a>
+</header>
+<!-- Nav -->
+<nav id="nav">
+<ul class="links">
+<li><a href="index.html">My portfolio</a></li>
+<li class="active"><a href="mesh_coloring.html">Bowling Game VR</a></li>
+</ul>
+<ul class="icons">
+<li><a class="icon brands alt fa-linkedin" href="https://www.linkedin.com/in/mohamed-rached-waly"><span class="label">LinkedIn</span></a></li>
+<li><a class="icon brands alt fa-github" href="https://github.com/rachedwaly"><span class="label">GitHub</span></a></li>
+</ul>
+</nav>
+<!-- Main -->
+<div id="main">
+<!-- Post -->
+<section class="post">
+<header class="major">
+<h1 id="title">Bowling Game VR
+									</h1>
+<p>This Section is dedicated to document my work on this mini bowling Game</p>
+</header>
+<h3>
+									1°)Introduction:
+								</h3>
+<p>
+									For this lab, I adapted the tutorial provided by Wen-Jie Tseng to a bowling game in VR. This section consists of two parts. First, 
+									I am going to go through the scene and its elements. Secondly, I am going to explain the scripts that I used for the game.	
+								</p>
+<h3>
+									2°)Scene elements:
+								</h3>
+<h4>a)3d Objects:</h4>
+<p>
+									I created a scene using unity’s basic 3d objects. I also used a free <a href="https://assetstore.unity.com/packages/3d/props/bowling-kegel-ball-67371" style="color:DodgerBlue;">asset</a> 
+									from unity’s store for the ball and the kegels. 
+									Down below you can find the final scene and the full hierarchy of 3D objects:
+
+									<div class="row">
+<div class="column2">
+<figure>
+<img height="285" src="images/VR_AR/lab_scene/lab_scene.png" style="width:100%"/>
+<center><figcaption> <b>Final Scene</b></figcaption></center>
+</figure>
+</div>
+<div class="column2">
+<figure>
+<img src="images/VR_AR/lab_scene/lab_scene_2.png" style="width:100%"/>
+<center><figcaption> <b>hierarchy of 3D objects</b></figcaption></center>
+</figure>
+</div>
+</div>
+</p>
+<h4>b)The ball:</h4>
+<p>
+									I attached to the ball a sphere collider and a rigid body component.
+									I adjusted the sphere collider to the ball’s size and kept the rigid body component with default parameters.			
+								</p>
+<figure>
+<center> <img height="285" src="images/VR_AR/lab_scene/ball_rb.png"/></center>
+<center><figcaption> <b>Ball's components</b></figcaption></center>
+</figure>
+<h4>b)The Kegel:</h4>
+<p>
+									I basically did the same thing for the kegel. Instead of a sphere collider, I fitted a capsule collider along the Y-Axis. 
+									I also reduced the mass of the kegel in order to empower the impact of the ball when thrown.		
+								</p>
+<figure>
+<center> <img height="285" src="images/VR_AR/lab_scene/kegel_rb.png" width="400"/></center>
+<center><figcaption> <b>Kegels's components</b></figcaption></center>
+</figure>
+<h4>c)Left/Right hand anchor:</h4>
+<p>
+									I only attached a sphere collider to the left and right hand anchor.		
+								</p>
+<figure>
+<center> <img height="250" src="images/VR_AR/lab_scene/left_hand_anchor.png" width="350"/></center>
+<center><figcaption> <b>Left hand anchor's components</b></figcaption></center>
+</figure>
+<h4>d)The score:</h4>
+<p>
+									I created a simple Text-Text Mesh pro 3d object and made it the child of the scoreboard 3d object.		
+								</p>
+<figure>
+<center> <img height="250" src="images/VR_AR/lab_scene/text_Mesh.png" width="350"/></center>
+<center><figcaption> <b>Left hand anchor's components</b></figcaption></center>
+</figure>
+<h4>e)Collision Matrix and layers of collisions:</h4>
+<p>
+									For this scene, I used two layers of collisions: walls and selection.
+									All the static elements like the walls and the table belong to the walls layer. 
+									The ball, kegels and the right/hand anchor belong to the selection layer.
+									Here is a snippet of the collision matrix that I used
+		
+								</p>
+<figure>
+<center> <img height="250" src="images/VR_AR/lab_scene/layer_collision_matrix.png" width="250"/></center>
+<center><figcaption> <b>Left hand anchor's components</b></figcaption></center>
+</figure>
+<h3>3°)Scripts and game mechanism:</h3>
+<h4>1°) The selection: </h4>
+<p>
+									For this part, I mainly followed Wen-Jie Tseng’s tutorial on how to handle the selection.
+								</p>
+<p>
+								I did one minor modification, I had to flip some of the coordinates when I transmit the controller velocity 
+								to the ball’s one. And also I boosted the value of the speed on the X-Axis.
+								 The value of boost is set to 3.0f by default.
+								<pre><code>
+triggerValue=OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, controller);
+if (isInCollider)
+{
+	if (!isSelected &amp;&amp; triggerValue &gt; 0.95f)
+	{
+		isSelected = true;
+		selectedObj.transform.parent = this.transform;
+		Rigidbody rb = selectedObj.GetComponent<rigidbody>();
+		rb.isKinematic = true;
+		rb.useGravity = false;
+		rb.velocity = Vector3.zero;
+		//rb.angularVelocity = Vector3.zero;
+	}
+	else if(isSelected &amp;&amp; triggerValue &lt; 0.95f)
+	{
+		isSelected = false;
+		selectedObj.transform.parent=null;
+		Rigidbody rb = selectedObj.GetComponent<rigidbody>();
+		rb.useGravity = true;
+		rb.isKinematic = false;
+		rb.velocity = new Vector3(-OVRInput.GetLocalControllerVelocity(controller).z*speedBoost, OVRInput.GetLocalControllerVelocity(controller).y, OVRInput.GetLocalControllerVelocity(controller).x);
+	}
+}
+								</rigidbody></rigidbody></code></pre>
+</p>
+<h4>2°) Calculating Score: </h4>
+<p>
+									In order to calculate the score, I had to fetch the flipped kegels in the scene. 
+									In the Awake method of MySelect class I used this method to do so:
+<pre><code>listOfKegels = kegelParent.GetComponentsInChildren<kegel>();</kegel></code></pre>
+									With listOfKegels being a private attribute of type Kegel[].</p>
+<p>
+									Then for each child of the kegelParent in the update method, 
+									I check if it is already flipped or not and whether its euler angles surpass a certain angle threshold. For my case I used 50 degrees.
+								</p>
+<p> Here is the code that loops on the kegels:</p>
+<pre><code>
+foreach (Kegel child in listOfKegels)
+{
+if (((Mathf.Abs(child.transform.localEulerAngles.x) &gt; 50) ||(Mathf.Abs(child.transform.localEulerAngles.z) &gt;50)) &amp;&amp; (child.gameObject.activeSelf) &amp;&amp; (child.transform.childCount==1) &amp;&amp; (!(child.isFlipped())))
+	{
+							
+	child.flip();
+	score = score + 1;
+	display.text ="Your score is : "+ score.ToString();
+												
+	}
+}
+								</code></pre>
+<p>
+									I added the condition child.transform.childCount==1 because the prefab that I downloaded had a parent and one child and the “GetComponentsInChildren” 
+									method fetches every child of the initial parent. 
+									I had to make sure that I fetched the same number of existing kegels in order to calculate the score correctly.	
+								</p>
+<h4>3°) The "Kegel" &amp; "ResetBall" classes: </h4>
+<p>
+								These two classes will be used for resetting the game.
+								The player can reset only the ball by pressing on the X button of the oculus’ right controller. 
+								And if he also wants to reset the kegels, he has to simultaneously press both of the X buttons of the two controllers.
+								Here is a usefull link on how to use the buttons in the script: <a href="https://docs.unity3d.com/560/Documentation/Manual/OculusControllers.html" style="color:DodgerBlue;">link</a>
+</p>
+<p>
+									Here is the full code of the two classes:
+								
+
+<b>Kegel.cs:</b>
+<pre> <code>
+public class Kegel : MonoBehaviour
+{
+    // Start is called before the first frame update
+    private Vector3 initialPosition;
+    private Quaternion rotation;
+    private bool flipped;
+    void Start()
+    {
+        initialPosition = transform.position;
+        rotation = transform.rotation;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if ((OVRInput.GetDown(OVRInput.Button.One)) &amp;&amp; (OVRInput.GetDown(OVRInput.Button.Three)))
+        {
+            transform.position = initialPosition;
+            transform.rotation = rotation;
+            Rigidbody rb = GetComponent<rigidbody>();
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            flipped = false;
+        }
+    }
+
+    public void flip()
+    {
+        flipped = true;
+    }
+
+    public bool isFlipped()
+    {
+        return flipped;
+    }
+
+}
+									</rigidbody></code></pre>
+<b>ResetBall.cs:</b>
+<pre><code>
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ResetBall : MonoBehaviour
+{
+	// Start is called before the first frame update
+	private Vector3 initialPosition;
+	private Rigidbody rb;
+
+	void Start()
+	{
+		initialPosition = transform.position;
+		rb =GetComponent &lt; Rigidbody&gt;();
+	}
+
+	// Update is called once per frame
+	void Update()
+	{
+		if(OVRInput.GetDown(OVRInput.Button.One) &amp;&amp; (rb.velocity.magnitude &lt; 0.2)){
+			transform.position = initialPosition;
+			rb.velocity = Vector3.zero;
+		}
+		if (transform.position.y &lt; 0)
+		{
+			
+			rb.velocity = Vector3.zero;
+			rb.angularVelocity = Vector3.zero;
+			transform.position = initialPosition;
+		}
+	}
+
+}
+									
+								</code></pre>
+<h3>
+									3°)Final Demo :
+								</h3>
+<p>
+									I will leave here a final demo of my mini game:
+									<center><video controls="" height="290" width="500">
+<source src="videos/AR_VR/Bowling.mp4" type="video/mp4"/>
+</video>
+</center>
+</p>
+</p></section>
+</div>
+<!-- Footer -->
+<footer id="footer">
+<section class="split contact">
+<section>
+<h3>Phone</h3>
+</section>
+<section>
+<h3>Email</h3>
+<p>rachedwaly1998@gmail.com</p>
+</section>
+<section>
+<h3>Social</h3>
+<ul class="icons alt">
+<li><a class="icon brands alt fa-linkedin" href="https://www.linkedin.com/in/mohamed-rached-waly"><span class="label">LinkedIn</span></a></li>
+<li><a class="icon brands alt fa-github" href="https://github.com/rachedwaly"><span class="label">GitHub</span></a></li>
+</ul>
+</section>
+</section>
+</footer>
+<!-- Copyright -->
+<div id="copyright">
+<ul><li>© Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+</div>
+</div>
+<!-- Scripts -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

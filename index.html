@@ -91,6 +91,11 @@ article .image img, .posts article img { width: 100%; height: auto; object-fit: 
 .toc-card i { font-size: 2em; color: #1e90ff; margin-bottom: 0.5em; display: block; transition: transform 0.3s ease; }
 .toc-card:hover i { transform: scale(1.1); }
 .toc-card span { color: #1e90ff; font-size: 0.9em; font-weight: 600; letter-spacing: 0.02em; }
+
+/* Responsive ToC button */
+@media screen and (max-width: 736px) {
+	.toc-floating-btn { right: auto !important; left: 50% !important; transform: translateX(-50%); }
+}
 </style>
 <section id="summary" style="margin: 3em 0;">
 <h3 style="text-align: center; margin-bottom: 1.5em; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600; font-size: 1em; color: #1e90ff;">Explore</h3>
@@ -297,12 +302,11 @@ article .image img, .posts article img { width: 100%; height: auto; object-fit: 
 
 <div>
 <ul class="actions">
-<li style="  position: fixed;
-								bottom: 50px;
-								right: 200px;
-								width: 90px;"><a class="button icon solid fa-arrow-up" href="#summary" style="background-color: #1a1a1a;
+<li class="toc-floating-btn" style="position: fixed; bottom: 20px; right: 20px;"><a class="button icon solid fa-arrow-up" href="#summary" style="background-color: #1a1a1a;
 									box-shadow: inset 0 0 0 2px #ffffff;
-									color: #ffffff !important;">Table Of Contents</a></li>
+									color: #ffffff !important;
+									white-space: nowrap;
+									padding: 0 1.5em;">Table Of Contents</a></li>
 </ul>
 </div>
 </div>

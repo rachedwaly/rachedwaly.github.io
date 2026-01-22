@@ -12,6 +12,13 @@
 <meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport"/>
 <link href="assets/css/main.css" rel="stylesheet"/>
 <noscript><link href="assets/css/noscript.css" rel="stylesheet"/></noscript>
+<script>
+const SITE_CONFIG = {
+	linkedin: "https://www.linkedin.com/in/rached-waly/",
+	github: "https://github.com/rachedwaly",
+	email: "rachedwaly1998@gmail.com"
+};
+</script>
 </head>
 <body class="is-preload">
 <!-- Wrapper -->
@@ -313,5 +320,13 @@ public class ResetBall : MonoBehaviour
 <script src="assets/js/breakpoints.min.js"></script>
 <script src="assets/js/util.js"></script>
 <script src="assets/js/main.js"></script>
+<script>
+document.querySelectorAll('.fa-linkedin').forEach(el => {
+	el.closest('a').href = SITE_CONFIG.linkedin;
+});
+document.querySelectorAll('.fa-github').forEach(el => {
+	el.closest('a').href = SITE_CONFIG.github;
+});
+</script>
 </body>
 </html>
